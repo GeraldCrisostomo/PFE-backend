@@ -27,10 +27,3 @@ This repository contains the backend codebase for the Project de Fin d'Étude (P
     ```
 
 The application will be accessible at [http://localhost:9000](http://localhost:9000).
-
-## Tests
-
-We have included unit tests to ensure the robustness of our application. You can run them with the command:
-
-```bash
-sbt test
