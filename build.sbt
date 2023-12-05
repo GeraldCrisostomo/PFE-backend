@@ -9,11 +9,7 @@ scalaVersion := "2.13.12"
 
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.0" % Test
-libraryDependencies ++= Seq(
-  "org.playframework" %% "play-slick"            % "6.0.0",
-  "org.playframework" %% "play-slick-evolutions" % "6.0.0",
-  "org.postgresql"    %  "postgresql"            % "42.5.4"         // Version actuelle du pilote PostgreSQL
-)
+libraryDependencies += "org.postgresql" % "postgresql" % "42.5.4"
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "be.vinci.ipl.controllers._"
