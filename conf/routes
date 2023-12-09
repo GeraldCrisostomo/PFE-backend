@@ -1,4 +1,13 @@
-# Articles
-GET     /articles                        controllers.ArticleController.getAllArticles
-PATCH   /articles/:id_article/modifierPourcentage  controllers.ArticleController.updatePourcentage(id_article: Long)
+# Tournées
+POST    /tournees                                   controllers.TourneeController.createTournee()
+GET     /tournees/date/:date                        controllers.TourneeController.getTourneesByDate(date: LocalDate)
+GET     /tournees/:id_tournee                       controllers.TourneeController.getTourneeById(id_tournee: Long)
+PUT     /tournees/:id_tournee                       controllers.TourneeController.updateTournee(id_tournee: Long)
+DELETE  /tournees/:id_tournee                       controllers.TourneeController.deleteTournee(id_tournee: Long)
+GET     /tournees/:id_tournee/resume                controllers.TourneeController.getTourneeResume(id_tournee: Long)
+PATCH   /tournees/:id_tournee/modifierLivreur       controllers.TourneeController.modifierLivreur(id_tournee: Long)
 
+
+# Articles
+GET     /articles                                   controllers.ArticleController.getAllArticles
+PATCH   /articles/:id_article/modifierPourcentage   controllers.ArticleController.updatePourcentage(id_article: Long)
