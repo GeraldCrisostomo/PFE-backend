@@ -2,18 +2,23 @@ package controllers
 
 import models.{LivreurModification, TourneeCreation, TourneeUpdate}
 import play.api.libs.json.{JsValue, Json}
+
 import javax.inject._
 import play.api.mvc._
 import services.TourneeService
+
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
 class TourneeController @Inject()(cc: ControllerComponents, tourneeService: TourneeService) extends AbstractController(cc) {
 
-  def getTourneesByDate(date: LocalDate): Action[AnyContent] = Action.async {
-    tourneeService.getTourneesByDate(date).map { tournees =>
+  def getTourneesByDate(date: String): Action[AnyContent] = Action.async {
+    val localDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE)
+
+    tourneeService.getTourneesByDate(localDate).map { tournees =>
       Ok(Json.toJson(tournees))
     }.recover {
       case e: Exception => InternalServerError(s"An error occurred: ${e.getMessage}")

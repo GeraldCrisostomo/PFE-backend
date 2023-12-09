@@ -1,6 +1,8 @@
+import java.time.LocalDate
+
 # Tournées
 POST    /tournees                                   controllers.TourneeController.createTournee()
-GET     /tournees/date/:date                        controllers.TourneeController.getTourneesByDate(date: LocalDate)
+GET     /tournees/date/:date                        controllers.TourneeController.getTourneesByDate(date: String)
 GET     /tournees/:id_tournee                       controllers.TourneeController.getTourneeById(id_tournee: Long)
 PUT     /tournees/:id_tournee                       controllers.TourneeController.updateTournee(id_tournee: Long)
 DELETE  /tournees/:id_tournee                       controllers.TourneeController.deleteTournee(id_tournee: Long)
