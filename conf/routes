@@ -1,5 +1,3 @@
-import java.time.LocalDate
-
 # Tournées
 POST    /tournees                                   controllers.TourneeController.createTournee()
 GET     /tournees/date/:date                        controllers.TourneeController.getTourneesByDate(date: String)
