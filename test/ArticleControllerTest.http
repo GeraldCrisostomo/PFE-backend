@@ -1,0 +1,11 @@
+### Get all articles
+GET http://localhost:9000/articles
+
+### Update article pourcentage
+PATCH http://localhost:9000/articles/2/modifierPourcentage
+Content-Type: application/json
+
+{
+  "new_pourcentage": 10
+}
+
