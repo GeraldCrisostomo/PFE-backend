@@ -1,7 +1,8 @@
 package services
 
+import models.{Article, PourcentagePatch}
+
 import javax.inject._
-import models.articles.{Article, PourcentagePatch}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 

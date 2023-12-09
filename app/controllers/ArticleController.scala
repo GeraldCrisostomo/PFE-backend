@@ -1,6 +1,6 @@
 package controllers
 
-import models.articles.PourcentagePatch
+import models.PourcentagePatch
 
 import javax.inject._
 import play.api.libs.json.Json
