@@ -1,24 +1,23 @@
-import models.{LivreurModification, Tournee, TourneeCreation, TourneeUpdate}
-import play.api.libs.json.{JsValue, Json}
+package controllers
 
+import models.{LivreurModification, TourneeCreation, TourneeUpdate}
+import play.api.libs.json.{JsValue, Json}
 import javax.inject._
 import play.api.mvc._
 import services.TourneeService
-import play.api.http.Writeable
-import play.api.http.ContentTypes
-import play.api.mvc.Codec
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
 
 @Singleton
 class TourneeController @Inject()(cc: ControllerComponents, tourneeService: TourneeService) extends AbstractController(cc) {
 
-  implicit def writeableOf_Result_ListOfTournee(implicit codec: Codec): Writeable[Future[List[Tournee]]] = {
-    Writeable(result => codec.encode(result.toString), Some(ContentTypes.JSON))
-  }
-  def getAllTourneesForDate(date: String): Action[AnyContent] = Action {
-    Ok(tourneeService.getAllTourneesForDate(date))
+  def getTourneesByDate(date: LocalDate): Action[AnyContent] = Action.async {
+    tourneeService.getTourneesByDate(date).map { tournees =>
+      Ok(Json.toJson(tournees))
+    }.recover {
+      case e: Exception => InternalServerError(s"An error occurred: ${e.getMessage}")
+    }
   }
 
   def createTournee(): Action[JsValue] = Action.async(parse.json) { request =>
