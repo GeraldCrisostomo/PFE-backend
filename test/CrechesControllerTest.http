@@ -1,0 +1,66 @@
+### Récupérer toutes les crèches
+GET http://localhost:9000/creches
+
+### Récupérer une crèche par son ID
+GET http://localhost:9000/creches/6
+
+### Créer une nouvelle crèche
+POST http://localhost:9000/creches
+Content-Type: application/json
+
+{
+  "nom": "Nouvelle Crèche",
+  "ville": "Ville",
+  "rue": "Rue de la Crèche"
+}
+
+### Mettre à jour une crèche
+PUT http://localhost:9000/creches/6
+Content-Type: application/json
+
+{
+  "nom": "CrecheUpdated",
+  "ville": "VilleUpdated",
+  "rue": "RueUpdated",
+  "new_lignes_par_defaut": [
+    {
+      "id_creche": 1,
+      "id_article": 1,
+      "nb_caisses": 69,
+      "nb_unites": 0
+    },
+    {
+      "id_creche": 1,
+      "id_article": 2,
+      "nb_caisses": 69,
+      "nb_unites": 0
+    },
+    {
+      "id_creche": 1,
+      "id_article": 3,
+      "nb_caisses": 69,
+      "nb_unites": 0
+    },
+    {
+      "id_creche": 1,
+      "id_article": 4,
+      "nb_caisses": 69,
+      "nb_unites": 0
+    },
+    {
+      "id_creche": 1,
+      "id_article": 5,
+      "nb_caisses": 0,
+      "nb_unites": 69
+    },
+    {
+      "id_creche": 1,
+      "id_article": 6,
+      "nb_caisses": 69,
+      "nb_unites": 0
+    }
+  ]
+}
+
+### Supprimer une crèche
+DELETE http://localhost:9000/creches/5

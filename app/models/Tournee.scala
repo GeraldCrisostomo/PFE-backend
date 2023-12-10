@@ -12,6 +12,17 @@ object Tournee {
   implicit val format: OFormat[Tournee] = Json.format[Tournee]
 }
 
+case class TourneeAvecLivreur(id_tournee: Long,
+                               date: LocalDate,
+                               id_livreur: Option[Long],
+                               nom_livreur: Option[String],
+                               prenom_livreur: Option[String],
+                               nom: Option[String],
+                               statut: Option[String])
+object TourneeAvecLivreur {
+  implicit val format: OFormat[TourneeAvecLivreur] = Json.format[TourneeAvecLivreur]
+}
+
 
 case class TourneeCreation(date: LocalDate)
 object TourneeCreation {

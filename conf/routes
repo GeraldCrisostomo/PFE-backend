@@ -19,3 +19,11 @@ PUT     /commandes/:id_commande/modifier            controllers.CommandeControll
 # Articles
 GET     /articles                                   controllers.ArticleController.getAllArticles
 PATCH   /articles/:id_article/modifierPourcentage   controllers.ArticleController.updatePourcentage(id_article: Long)
+
+
+# Creches
+GET     /creches                                    controllers.CrecheController.getAllCreches
+GET     /creches/:id_creche                         controllers.CrecheController.getCrecheById(id_creche: Long)
+POST    /creches                                    controllers.CrecheController.createCreche
+PUT     /creches/:id_creche                         controllers.CrecheController.updateCreche(id_creche: Long)
+DELETE  /creches/:id_creche                         controllers.CrecheController.deleteCreche(id_creche: Long)
