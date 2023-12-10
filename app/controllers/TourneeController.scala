@@ -66,8 +66,10 @@ class TourneeController @Inject()(cc: ControllerComponents, tourneeService: Tour
   }
 
   def getTourneeResume(id_tournee: Long): Action[AnyContent] = Action.async { _ =>
-    tourneeService.getTourneeResume(id_tournee).map { maybeResume =>
-      maybeResume.map(resume => Ok(Json.toJson(resume))).getOrElse(NotFound)
+    tourneeService.getTourneeResume(id_tournee).map { tourneeResumeList =>
+      Ok(Json.toJson(tourneeResumeList))
+    }.recover {
+      case e: Exception => InternalServerError(s"An error occurred: ${e.getMessage}")
     }
   }
 

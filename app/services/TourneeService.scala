@@ -1,9 +1,10 @@
 package services
 
-import models.{ArticleSansPourcentage, LivreurModification, Resume, Tournee, TourneeCreation, TourneeResume, TourneeUpdate}
+import models.{LivreurModification, ResumeTournee, Tournee, TourneeCreation, TourneeUpdate}
 
 import javax.inject._
 import play.api.db.slick.DatabaseConfigProvider
+import slick.jdbc.meta.MTable
 import slick.jdbc.{GetResult, JdbcProfile, PositionedResult}
 
 import java.time.LocalDate
@@ -20,7 +21,7 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     def date = column[LocalDate]("date")
     def id_livreur = column[Option[Long]]("id_livreur")
     def nom = column[Option[String]]("nom")
-    def statut = column[String]("statut")
+    def statut = column[Option[String]]("statut", O.Default(Some("en attente")))
 
     def * = (id_tournee, date, id_livreur, nom, statut) <> ((Tournee.apply _).tupled, Tournee.unapply)
   }
@@ -38,7 +39,7 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
       date = tourneeCreation.date,
       id_livreur = null,
       nom = null,
-      statut = "en attente"
+      statut = Some("en attente")
     )
 
     dbConfig.db.run(insertTournee)
@@ -59,40 +60,41 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
   def deleteTournee(id_tournee: Long): Future[Boolean] =
     dbConfig.db.run(tournees.filter(_.id_tournee === id_tournee).delete).map(_ > 0)
 
-  case class ResumesTourneesResult(id_article: Long,
-                                   libelle: String,
-                                   taille: Option[String],
-                                   nb_caisses: Int,
-                                   nb_unites: Int)
+  private class ResumesTourneesTable(tag: Tag) extends Table[ResumeTournee](tag, Some("public"), "ResumesTournees") {
+    def id_tournee = column[Long]("id_tournee")
+    def id_article = column[Long]("id_article")
+    def libelle = column[String]("libelle")
+    def taille = column[Option[String]]("taille")
+    def nb_caisses = column[Int]("nb_caisses")
+    def nb_unites = column[Int]("nb_unites")
+    def * = (id_tournee, id_article, libelle, taille, nb_caisses, nb_unites) <> ((ResumeTournee.apply _).tupled, ResumeTournee.unapply)
+  }
 
-  implicit val getResumesTourneesResult: GetResult[ResumesTourneesResult] = new GetResult[ResumesTourneesResult] {
-    def apply(rs: PositionedResult): ResumesTourneesResult =
-      ResumesTourneesResult(
-        rs.nextLong(),
-        rs.nextString(),
-        rs.nextStringOption(),
-        rs.nextInt(),
-        rs.nextInt()
+  private val resumesTournees = TableQuery[ResumesTourneesTable]
+
+  implicit val getResumeTourneeResult: GetResult[ResumeTournee] = new GetResult[ResumeTournee] {
+    def apply(r: PositionedResult): ResumeTournee =
+      ResumeTournee(
+        r.nextLong(),
+        r.nextLong(),
+        r.nextString(),
+        r.nextStringOption(),
+        r.nextInt(),
+        r.nextInt()
       )
   }
 
-  def getTourneeResume(id_tournee: Long): Future[Option[TourneeResume]] = {
+  def getTourneeResume(id_tournee: Long): Future[List[ResumeTournee]] = {
     val sqlQuery =
       s"""
-         |SELECT id_article, libelle, taille, nb_caisses, nb_unites
-         |FROM ResumesTournees
+         |SELECT id_tournee, id_article, libelle, taille, nb_caisses, nb_unites
+         |FROM public.ResumesTournees
          |WHERE id_tournee = $id_tournee
          |""".stripMargin
 
-    // Exécuter la requête SQL et mapper les résultats à la classe ResumesTourneesResult
-    dbConfig.db.run(sql"""#$sqlQuery""".as[ResumesTourneesResult]).map { result =>
-      result.headOption.map { case ResumesTourneesResult(id_article, libelle, taille, nb_caisses, nb_unites) =>
-        // Créer un objet TourneeResume à partir des résultats
-        val resume = Resume(ArticleSansPourcentage(id_article, libelle, taille), nb_caisses, nb_unites)
-        TourneeResume(Seq(resume))
-      }
-    }
+    dbConfig.db.run(sql"""#$sqlQuery""".as[ResumeTournee]).map(_.toList)
   }
+
 
   def modifierLivreur(id_tournee: Long, livreurModification: LivreurModification): Future[Boolean] = {
     val updateQuery = tournees.filter(_.id_tournee === id_tournee).map(_.id_livreur).update(livreurModification.id_livreur)
