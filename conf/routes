@@ -8,12 +8,12 @@ GET     /tournees/:id_tournee/resume                controllers.TourneeControlle
 PATCH   /tournees/:id_tournee/modifierLivreur       controllers.TourneeController.modifierLivreur(id_tournee: Long)
 
 # Commandes
-GET     /commandes/:id_tournee                      controllers.CommandeController.getCommandesByTournee(id_tournee: Int)
-POST    /commandes/:id_tournee                      controllers.CommandeController.createCommande(id_tournee: Int)
-GET     /commandes/:id_commande                     controllers.CommandeController.getCommande(id_commande: Int)
-DELETE  /commandes/:id_commande                     controllers.CommandeController.deleteCommande(id_commande: Int)
-PUT     /commandes/:id_commande/modifierStatut      controllers.CommandeController.updateCommandeStatut(id_commande: Int)
-PUT     /commandes/:id_commande/modifier            controllers.CommandeController.updateCommande(id_commande: Int)
+GET     /commandes/:id_tournee                      controllers.CommandeController.getCommandesByTournee(id_tournee: Long)
+POST    /commandes/:id_tournee                      controllers.CommandeController.createCommande(id_tournee: Long)
+GET     /commandes/:id_commande                     controllers.CommandeController.getCommande(id_commande: Long)
+DELETE  /commandes/:id_commande                     controllers.CommandeController.deleteCommande(id_commande: Long)
+PUT     /commandes/:id_commande/modifierStatut      controllers.CommandeController.updateCommandeStatut(id_commande: Long)
+PUT     /commandes/:id_commande/modifier            controllers.CommandeController.updateCommande(id_commande: Long)
 
 
 # Articles
