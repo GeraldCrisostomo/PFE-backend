@@ -36,4 +36,9 @@ class UtilisateurService @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
   def getAllUtilisateurs: Future[List[Utilisateur]] =
     dbConfig.db.run(utilisateurs.to[List].result)
 
+  def getAllUtilisateursByRole(role: String) :Future[List[Utilisateur]] ={
+    val query = utilisateurs.filter(_.role === role)
+    dbConfig.db.run(query.to[List].result)
+  }
+
 }
