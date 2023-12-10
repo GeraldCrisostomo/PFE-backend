@@ -23,3 +23,6 @@ GET     /creches/:id_creche                         controllers.CrecheController
 POST    /creches                                    controllers.CrecheController.createCreche
 PUT     /creches/:id_creche                         controllers.CrecheController.updateCreche(id_creche: Long)
 DELETE  /creches/:id_creche                         controllers.CrecheController.deleteCreche(id_creche: Long)
+
+# Utilisateurs
+GET     /utilisateurs                               controllers.UtilisateurController.getAllUtilisateurs

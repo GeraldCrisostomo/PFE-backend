@@ -1,0 +1,2 @@
+### Get All Utilisateurs
+GET http://localhost:9000/utilisateurs
