@@ -1,10 +1,9 @@
 package services
 
-import models.{LivreurModification, ResumeTournee, Tournee, TourneeCreation, TourneeUpdate}
+import models.{LivreurModification, ResumeTournee, Tournee, TourneeAvecLivreur, TourneeCreation, TourneeUpdate, Utilisateur}
 
 import javax.inject._
 import play.api.db.slick.DatabaseConfigProvider
-import slick.jdbc.meta.MTable
 import slick.jdbc.{GetResult, JdbcProfile, PositionedResult}
 
 import java.time.LocalDate
@@ -28,9 +27,28 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
 
   private val tournees = TableQuery[TourneeTable]
 
-  def getTourneesByDate(date: LocalDate): Future[List[Tournee]] = {
-    val query = tournees.filter(_.date === date)
-    dbConfig.db.run(query.to[List].result)
+  private class UtilisateurTable(tag: Tag) extends Table[Utilisateur](tag, Some("pfe"), "utilisateurs") {
+    def id_utilisateur = column[Long]("id_utilisateur", O.PrimaryKey, O.AutoInc)
+    def nom = column[String]("nom")
+    def prenom = column[String]("prenom")
+    def identifiant = column[String]("identifiant")
+    def mot_de_passe = column[String]("mot_de_passe")
+    def role = column[String]("role")
+    def * = (id_utilisateur, nom, prenom, identifiant, mot_de_passe, role) <> ((Utilisateur.apply _).tupled, Utilisateur.unapply)
+  }
+
+  private val utilisateurs = TableQuery[UtilisateurTable]
+
+  def getTourneesByDate(date: LocalDate): Future[List[TourneeAvecLivreur]] = {
+    val query = for {
+      t <- tournees.filter(_.date === date)
+      u <- utilisateurs.filter(_.id_utilisateur === t.id_livreur)
+    } yield (t.id_tournee, t.date, t.id_livreur, u.nom, u.prenom, t.statut)
+
+    dbConfig.db.run(query.to[List].result).map(_.map {
+      case (id, dt, idLivreur, nom, prenom, statut) =>
+        TourneeAvecLivreur(id, dt, idLivreur, Some(nom), Some(prenom), Some(nom), statut)
+    })
   }
 
   def createTournee(tourneeCreation: TourneeCreation): Future[Long] = {
@@ -45,8 +63,18 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     dbConfig.db.run(insertTournee)
   }
 
-  def getTourneeById(id_tournee: Long): Future[Option[Tournee]] =
-    dbConfig.db.run(tournees.filter(_.id_tournee === id_tournee).result.headOption)
+  def getTourneeById(id_tournee: Long): Future[Option[TourneeAvecLivreur]] = {
+    val query = for {
+      t <- tournees.filter(_.id_tournee === id_tournee)
+      u <- utilisateurs.filter(_.id_utilisateur === t.id_livreur)
+    } yield (t.id_tournee, t.date, t.id_livreur, u.nom, u.prenom, t.statut)
+
+    dbConfig.db.run(query.result.headOption).map(_.map {
+      case (id, dt, idLivreur, nom, prenom, statut) =>
+        TourneeAvecLivreur(id, dt, idLivreur, Some(nom), Some(prenom), Some(nom), statut)
+    })
+  }
+
 
   def updateTournee(id_tournee: Long, tourneeUpdate: TourneeUpdate): Future[Boolean] = {
     val updateQuery = tournees
