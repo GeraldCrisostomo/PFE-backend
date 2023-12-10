@@ -2,9 +2,10 @@
 GET http://localhost:9000/utilisateurs
 
 ### Get All Utilisateurs by role (livreurs)
-
 GET http://localhost:9000/utilisateurs/role/livreur
 
 ### Get All Utilisateurs by role (admins)
-
 GET http://localhost:9000/utilisateurs/role/admin
+
+### Get Utilisateur (1)
+GET http://localhost:9000/utilisateurs/1

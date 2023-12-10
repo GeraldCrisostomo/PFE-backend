@@ -22,5 +22,12 @@ class UtilisateurController @Inject()(cc: ControllerComponents, utilisateurServi
     }
   }
 
+  def getUtilisateur(id_utilisateur: Long): Action[AnyContent] = Action.async { implicit request =>
+    utilisateurService.getUtilisateur(id_utilisateur).map { supplements => Ok(Json.toJson(supplements))
+    }.recover {
+      case e: Exception => InternalServerError(s"An error occured ${e.getMessage} ")
+    }
+  }
+
 }
 

@@ -41,4 +41,9 @@ class UtilisateurService @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
     dbConfig.db.run(query.to[List].result)
   }
 
+  def getUtilisateur(id_utilisateur: Long): Future[Option[Utilisateur]] = {
+    val query = utilisateurs.filter(_.id_utilisateur === id_utilisateur).result.headOption
+    dbConfig.db.run(query)
+  }
+
 }

@@ -26,4 +26,5 @@ DELETE  /creches/:id_creche                         controllers.CrecheController
 
 # Utilisateurs
 GET     /utilisateurs                               controllers.UtilisateurController.getAllUtilisateurs
-GET     /utilisateurs/role/:role                         controllers.UtilisateurController.getAllSupplementsByRole(role: String)
+GET     /utilisateurs/role/:role                    controllers.UtilisateurController.getAllSupplementsByRole(role: String)
+GET     /utilisateurs/:id_utilisateur                controllers.UtilisateurController.getUtilisateur(id_utilisateur: Long)
