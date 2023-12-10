@@ -1,0 +1,72 @@
+### Récupérer toutes les commandes d'une tournée
+GET http://localhost:9000/commandes/tournee/1
+
+### Créer une nouvelle commande pour une tournée
+POST http://localhost:9000/commandes/tournee/2
+Content-Type: application/json
+
+{
+  "id_creche": 2,
+  "ordre": 1
+}
+
+### Récupérer une commande par son ID
+GET http://localhost:9000/commandes/2
+
+### Supprimer une commande
+DELETE http://localhost:9000/commandes/10
+
+### Mettre à jour le statut d'une commande
+PUT http://localhost:9000/commandes/6/modifierStatut
+Content-Type: application/json
+
+{
+  "new_Statut": "en cours"
+}
+
+### Mettre à jour une commande
+PUT http://localhost:9000/commandes/2/modifier
+Content-Type: application/json
+
+{
+  "new_ordre": 2,
+  "new_statut": "en attente",
+  "new_lignes_commande": [
+    {
+      "id_commande": 2,
+      "id_article": 1,
+      "new_nb_caisses": 69,
+      "new_nb_unites": 0
+    },
+    {
+      "id_commande": 2,
+      "id_article": 2,
+      "new_nb_caisses": 69,
+      "new_nb_unites": 0
+    },
+    {
+      "id_commande": 2,
+      "id_article": 3,
+      "new_nb_caisses": 69,
+      "new_nb_unites": 0
+    },
+    {
+      "id_commande": 2,
+      "id_article": 4,
+      "new_nb_caisses": 69,
+      "new_nb_unites": 0
+    },
+    {
+      "id_commande": 2,
+      "id_article": 5,
+      "new_nb_caisses": 69,
+      "new_nb_unites": 5
+    },
+    {
+      "id_commande": 2,
+      "id_article": 6,
+      "new_nb_caisses": 69,
+      "new_nb_unites": 0
+    }
+  ]
+}
