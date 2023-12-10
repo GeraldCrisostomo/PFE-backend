@@ -20,7 +20,7 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     def date = column[LocalDate]("date")
     def id_livreur = column[Option[Long]]("id_livreur")
     def nom = column[Option[String]]("nom")
-    def statut = column[Option[String]]("statut", O.Default(Some("en attente")))
+    def statut = column[String]("statut")
 
     def * = (id_tournee, date, id_livreur, nom, statut) <> ((Tournee.apply _).tupled, Tournee.unapply)
   }
@@ -57,7 +57,7 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
       date = tourneeCreation.date,
       id_livreur = null,
       nom = null,
-      statut = Some("en attente")
+      statut = "en attente"
     )
 
     dbConfig.db.run(insertTournee)
