@@ -11,7 +11,6 @@ case class Commande(
                      statut: String
                    )
 case class CommandeCreate(
-                           id_tournee: Long,
                            id_creche: Long,
                            ordre: Int
                          )

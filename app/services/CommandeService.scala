@@ -5,6 +5,7 @@ import models._
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) {
@@ -43,31 +44,38 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
 
   private val creches = TableQuery[CrecheTable]
 
-  private class UtilisateurTable(tag: Tag) extends Table[Utilisateur](tag, Some("pfe"), "utilisateurs") {
-    def id_utilisateur = column[Long]("id_utilisateur", O.PrimaryKey, O.AutoInc)
-    def nom = column[String]("nom")
-    def prenom = column[String]("prenom")
-    def identifiant = column[String]("identifiant")
-    def mot_de_passe = column[String]("mot_de_passe")
-    def role = column[String]("role")
-    def * = (id_utilisateur, nom, prenom, identifiant, mot_de_passe, role) <> ((Utilisateur.apply _).tupled, Utilisateur.unapply)
+  private class TourneeTable(tag: Tag) extends Table[Tournee](tag, Some("pfe"), "tournees") {
+    def id_tournee = column[Long]("id_tournee", O.PrimaryKey, O.AutoInc)
+    def date = column[LocalDate]("date")
+    def id_livreur = column[Option[Long]]("id_livreur")
+    def nom = column[Option[String]]("nom")
+    def statut = column[String]("statut")
+    def * = (id_tournee, date, id_livreur, nom, statut) <> ((Tournee.apply _).tupled, Tournee.unapply)
   }
 
-  private val utilisateurs = TableQuery[UtilisateurTable]
+  private val tournees = TableQuery[TourneeTable]
 
   def getCommandesByTourneeId(idTournee: Long): Future[List[CommandeWithDetails]] = {
     val query = commandes
       .filter(_.id_tournee === idTournee)
       .join(creches)
       .on(_.id_creche === _.id_creche)
+      .join(tournees)
+      .on(_._1.id_tournee === _.id_tournee)
       .result
 
     dbConfig.db.run(query).map { result =>
       result.map {
-        case (commande, creche) =>
+        case ((commande, creche), tournee) =>
           CommandeWithDetails(
             id_commande = commande.id_commande,
-            tournee = Tournee(idTournee, ""), // Assurez-vous de fournir les détails appropriés de la tournée
+            tournee = Tournee(
+              id_tournee = tournee.id_tournee,
+              date = tournee.date,
+              id_livreur = tournee.id_livreur,
+              nom = tournee.nom,
+              statut = tournee.statut
+            ),
             creche = Creche(
               id_creche = creche.id_creche,
               nom = creche.nom,
@@ -83,43 +91,77 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
 
 
   def createCommande(idTournee: Long, commandeCreate: CommandeCreate): Future[Long] = {
-    val commande = Commande(0, idTournee, commandeCreate.id_creche, commandeCreate.ordre, StatutEnum.EnAttente)
-    val lignesCommandeList = commandeCreate.lignes_commande.map { ligneCreate =>
-      LigneCommande(0, ligneCreate.id_article, ligneCreate.nb_caisses, ligneCreate.nb_unites)
-    }
+    val commande = Commande(0, idTournee, commandeCreate.id_creche, commandeCreate.ordre, "en attente")
 
     val action = (for {
       commandeId <- (commandes returning commandes.map(_.id_commande)) += commande
-      _ <- lignesCommande ++= lignesCommandeList.map(_.copy(id_commande = commandeId))
     } yield commandeId).transactionally
 
     dbConfig.db.run(action)
   }
 
-  def getCommandeById(idCommande: Long): Future[Option[CommandeWithDetails]] = {
-    val query = commandes
+  def getCommandeById(idCommande: Long): Future[Option[CommandeWithAllDetails]] = {
+    val commandesQuery = commandes
       .filter(_.id_commande === idCommande)
-      .joinLeft(lignesCommande)
-      .on(_.id_commande === _.id_commande)
+      .result.headOption
+
+    val lignesCommandeQuery = getLignesCommandeByIdCommande(idCommande)
+
+    val detailsQuery = for {
+      commandeOption <- dbConfig.db.run(commandesQuery)
+      lignesList <- lignesCommandeQuery
+    } yield (commandeOption, lignesList)
+
+    detailsQuery.flatMap {
+      case (Some(commande), lignesList) =>
+        val crecheQuery = creches
+          .filter(_.id_creche === commande.id_creche)
+          .result.headOption
+
+        val tourneeQuery = tournees
+          .filter(_.id_tournee === commande.id_tournee)
+          .result.headOption
+
+        val crecheAndTourneeQuery = for {
+          crecheOption <- dbConfig.db.run(crecheQuery)
+          tourneeOption <- dbConfig.db.run(tourneeQuery)
+        } yield (crecheOption, tourneeOption)
+
+        crecheAndTourneeQuery.map {
+          case (Some(creche), Some(tournee)) =>
+            Some(
+              CommandeWithAllDetails(
+                id_commande = commande.id_commande,
+                tournee = Tournee(
+                  id_tournee = tournee.id_tournee,
+                  date = tournee.date,
+                  id_livreur = tournee.id_livreur,
+                  nom = tournee.nom,
+                  statut = tournee.statut
+                ),
+                creche = Creche(
+                  id_creche = creche.id_creche,
+                  nom = creche.nom,
+                  ville = creche.ville,
+                  rue = creche.rue
+                ),
+                ordre = commande.ordre,
+                statut = commande.statut,
+                lignes_commande = lignesList
+              )
+            )
+          case _ => None
+        }
+      case _ => Future.successful(None)
+    }
+  }
+
+  def getLignesCommandeByIdCommande(idCommande: Long): Future[List[LigneCommande]] = {
+    val query = lignesCommande
+      .filter(_.id_commande === idCommande)
       .result
 
-    dbConfig.db.run(query).map { result =>
-      result.headOption.map {
-        case (commande, lignes) =>
-          val lignesCommande = lignes.collect {
-            case (_, Some(ligne)) => LigneCommande(ligne.id_article, ligne.nb_caisses, ligne.nb_unites)
-          }.toList
-
-          CommandeWithDetails(
-            id_commande = commande.id_commande,
-            tournee = Tournee(commande.id_tournee, ""), // Provide appropriate Tournee details
-            creche = Creche(commande.id_creche, "", "", ""), // Provide appropriate Creche details
-            ordre = commande.ordre,
-            statut = commande.statut,
-            lignes_commande = lignesCommande
-          )
-      }
-    }
+    dbConfig.db.run(query).map(_.toList)
   }
 
   def deleteCommande(idCommande: Long): Future[Boolean] = {
@@ -155,6 +197,7 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
 
     val combinedQuery = updateQuery.andThen(lignesUpdateQuery).transactionally
 
-    dbConfig.db.run(combinedQuery).map(_ > 0)
+    dbConfig.db.run(combinedQuery).map(_ => true)
   }
+
 }
