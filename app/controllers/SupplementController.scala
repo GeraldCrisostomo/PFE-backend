@@ -14,7 +14,10 @@ class SupplementController @Inject()(cc: ControllerComponents, supplementService
 ) extends AbstractController(cc) {
 
   def getAllSupplements(id_tournee: Long): Action[AnyContent] = Action.async { implicit request =>
-    supplementService.getAllSupplements(id_tournee).map(articles => Ok(Json.toJson(articles)))
+    supplementService.getAllSupplements(id_tournee).map { supplements => Ok(Json.toJson(supplements))
+    }.recover{
+      case e: Exception => InternalServerError(s"An error occured ${e.getMessage} ")
+    }
   }
 }
 
