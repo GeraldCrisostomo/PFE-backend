@@ -3,12 +3,11 @@ POST http://localhost:9000/tournees
 Content-Type: application/json
 
 {
-  "date": "2023-12-31",
-  "livreur": "John Doe"
+  "date": "2023-12-27"
 }
 
 ### Récupérer toutes les tournées pour une date donnée
-GET http://localhost:9000/tournees/date/2023-12-31
+GET http://localhost:9000/tournees/date/2023-12-08
 
 ### Récupérer une tournée par son ID
 GET http://localhost:9000/tournees/1
@@ -18,20 +17,20 @@ PUT http://localhost:9000/tournees/1
 Content-Type: application/json
 
 {
-  "date": "2023-12-31",
-  "livreur": "Updated Livreur"
+  "nom": "Tournée du sud de la ville",
+  "statut": "terminée"
 }
 
 ### Supprimer une tournée
-DELETE http://localhost:9000/tournees/1
+DELETE http://localhost:9000/tournees/7
 
 ### Obtenir le résumé d'une tournée
 GET http://localhost:9000/tournees/1/resume
 
 ### Modifier le livreur d'une tournée
-PATCH http://localhost:9000/tournees/1/modifierLivreur
+PATCH http://localhost:9000/tournees/2/modifierLivreur
 Content-Type: application/json
 
 {
-  "livreur": "New Livreur"
+  "id_livreur": 1
 }
