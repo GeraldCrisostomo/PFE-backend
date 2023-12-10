@@ -1,0 +1,9 @@
+
+### Update supplement
+PATCH http://localhost:9000/supplements/1/1
+Content-Type: application/json
+
+{
+  "nb_caisses": 10,
+  "nb_unites": 3
+}

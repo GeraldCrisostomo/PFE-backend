@@ -1,7 +1,9 @@
 package controllers
 
+import models._
+
 import javax.inject._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.{ArticleService, SupplementService}
 
@@ -18,6 +20,15 @@ class SupplementController @Inject()(cc: ControllerComponents, supplementService
     }.recover{
       case e: Exception => InternalServerError(s"An error occured ${e.getMessage} ")
     }
+  }
+
+  def updateSupplement(idTournee: Long, idArticle: Long): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    val supplementUpdate = request.body.as[SupplementUpdate]
+    supplementService.updateSupplement(idTournee, idArticle, supplementUpdate).map { supplement => Ok(Json.toJson(supplement))
+    }.recover {
+      case e: Exception => InternalServerError(s"An error occured ${e.getMessage} ")
+    }
+
   }
 }
 

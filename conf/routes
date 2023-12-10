@@ -12,5 +12,8 @@ PATCH   /tournees/:id_tournee/modifierLivreur       controllers.TourneeControlle
 GET     /articles                                   controllers.ArticleController.getAllArticles
 PATCH   /articles/:id_article/modifierPourcentage   controllers.ArticleController.updatePourcentage(id_article: Long)
 
+# Supplements
+GET      /supplements/:id_tournee                   controllers.SupplementController.getAllSupplements(id_tournee: Long)
+PATCH    /supplements/:id_tournee/:id_article       controllers.SupplementController.updateSupplement(id_tournee: Long, id_article: Long)
 
-GET      /supplements/:id_tournee                    controllers.SupplementController.getAllSupplements(id_tournee: Long)
+
