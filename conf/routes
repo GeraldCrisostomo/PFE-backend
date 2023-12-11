@@ -16,7 +16,7 @@ PUT     /commandes/:id_commande/modifierStatut      controllers.CommandeControll
 PUT     /commandes/:id_commande/modifier            controllers.CommandeController.updateCommande(id_commande: Long)
 
 # Articles
-GET     /articles                                   controllers.ArticleController.getAllArticles
+GET     /articles                                   controllers.ArticleController.getAllArticles()
 PATCH   /articles/:id_article/modifierPourcentage   controllers.ArticleController.updatePourcentage(id_article: Long)
 
 # Supplements
@@ -24,8 +24,15 @@ GET      /supplements/:id_tournee                   controllers.SupplementContro
 PATCH    /supplements/:id_tournee/:id_article       controllers.SupplementController.updateSupplement(id_tournee: Long, id_article: Long)
 
 # Creches
-GET     /creches                                    controllers.CrecheController.getAllCreches
+GET     /creches                                    controllers.CrecheController.getAllCreches()
 GET     /creches/:id_creche                         controllers.CrecheController.getCrecheById(id_creche: Long)
-POST    /creches                                    controllers.CrecheController.createCreche
+POST    /creches                                    controllers.CrecheController.createCreche()
 PUT     /creches/:id_creche                         controllers.CrecheController.updateCreche(id_creche: Long)
 DELETE  /creches/:id_creche                         controllers.CrecheController.deleteCreche(id_creche: Long)
+
+# Tournees par defaut
+GET     /tourneesParDefaut                          controllers.TourneeParDefautController.getTourneesParDefaut()
+POST    /tourneesParDefaut                          controllers.TourneeParDefautController.createTourneeParDefaut()
+GET     /tourneesParDefaut/:id_tournee_par_defaut   controllers.TourneeParDefautController.getTourneeParDefautById(id_tournee_par_defaut: Long)
+PATCH   /tourneesParDefaut/:id_tournee_par_defaut   controllers.TourneeParDefautController.updateTourneeParDefaut(id_tournee_par_defaut: Long)
+DELETE  /tourneesParDefaut/:id_tournee_par_defaut   controllers.TourneeParDefautController.deleteTourneeParDefaut(id_tournee_par_defaut: Long)
