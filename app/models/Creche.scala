@@ -24,14 +24,14 @@ case class Creche(
  * @param nom                 Le nom de la crèche.
  * @param ville               La ville où se situe la crèche.
  * @param rue                 La rue où se situe la crèche.
- * @param lignes_par_defaut   Les lignes de commande par défaut associées à la crèche.
+ * @param lignes_par_defaut   Les lignes de commande par défaut associées à la crèche avec des détails supplémentaires comme l'article sans pourcentage.
  */
 case class CrecheWithDetails(
                               id_creche: Option[Long],
                               nom: String,
                               ville: String,
                               rue: String,
-                              lignes_par_defaut: List[LigneCommandeParDefaut]
+                              lignes_par_defaut: List[LigneCommandeParDefautWithDetails]
                             )
 
 /**
