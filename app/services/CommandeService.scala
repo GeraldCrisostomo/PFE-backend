@@ -210,7 +210,7 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
    * @param idCommande ID de la commande.
    * @return Future[List[LigneCommandeWithDeltails]] contenant les détails des lignes de commande.
    */
-  def getLignesCommandeByIdCommande(idCommande: Long): Future[List[LigneCommandeWithDeltails]] = {
+  def getLignesCommandeByIdCommande(idCommande: Long): Future[List[LigneCommandeWithDetails]] = {
     // Requête pour récupérer les lignes de commande avec détails
     val query = lignesCommande
       .filter(_.id_commande === idCommande)
@@ -221,7 +221,7 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
     dbConfig.db.run(query).map(_.toList.map {
       case (ligneCommande, article) =>
         // Création de l'objet LigneCommandeWithDeltails avec les détails récupérés
-        LigneCommandeWithDeltails(
+        LigneCommandeWithDetails(
           ligneCommande.id_commande,
           ArticleSansPourcentage(article.id_article, article.libelle, article.taille),
           ligneCommande.nb_caisses,
