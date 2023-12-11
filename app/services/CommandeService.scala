@@ -55,6 +55,16 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
 
   private val tournees = TableQuery[TourneeTable]
 
+  private class ArticleTable(tag: Tag) extends Table[Article](tag, Some("pfe"), "articles") {
+    def id_article = column[Long]("id_article", O.PrimaryKey, O.AutoInc)
+    def libelle = column[String]("libelle")
+    def taille = column[Option[String]]("taille")
+    def pourcentage = column[Int]("pourcentage")
+    def * = (id_article, libelle, taille, pourcentage) <> ((Article.apply _).tupled, Article.unapply)
+  }
+
+  private val articles = TableQuery[ArticleTable]
+
   def getCommandesByTourneeId(idTournee: Long): Future[List[CommandeWithDetails]] = {
     val query = commandes
       .filter(_.id_tournee === idTournee)
@@ -156,12 +166,21 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
     }
   }
 
-  def getLignesCommandeByIdCommande(idCommande: Long): Future[List[LigneCommande]] = {
+  def getLignesCommandeByIdCommande(idCommande: Long): Future[List[LigneCommandeWithDeltails]] = {
     val query = lignesCommande
       .filter(_.id_commande === idCommande)
+      .join(articles).on(_.id_article === _.id_article)
       .result
 
-    dbConfig.db.run(query).map(_.toList)
+    dbConfig.db.run(query).map(_.toList.map {
+      case (ligneCommande, article) =>
+        LigneCommandeWithDeltails(
+          ligneCommande.id_commande,
+          ArticleSansPourcentage(article.id_article, article.libelle, article.taille),
+          ligneCommande.nb_caisses,
+          ligneCommande.nb_unites
+        )
+    })
   }
 
   def deleteCommande(idCommande: Long): Future[Boolean] = {
