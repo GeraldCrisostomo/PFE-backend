@@ -16,25 +16,25 @@ case class CommandeCreate(
                          )
 
 case class CommandeWithDetails(
-                                   id_commande: Long,
-                                   tournee: Tournee,
-                                   creche: Creche,
-                                   ordre: Int,
-                                   statut: String
-                                 )
-
-case class CommandeWithAllDetails(
                                 id_commande: Long,
                                 tournee: Tournee,
                                 creche: Creche,
                                 ordre: Int,
-                                statut: String,
-                                lignes_commande: List[LigneCommande]
+                                statut: String
                               )
 
+case class CommandeWithAllDetails(
+                                    id_commande: Long,
+                                    tournee: Tournee,
+                                    creche: Creche,
+                                    ordre: Int,
+                                    statut: String,
+                                    lignes_commande: List[LigneCommandeWithDeltails]
+                                 )
+
 case class CommandeUpdateStatut(
-                           new_Statut: String
-                         )
+                                 new_Statut: String
+                               )
 
 case class CommandeFullUpdate(
                                new_ordre: Int,
