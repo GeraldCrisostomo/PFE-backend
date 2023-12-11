@@ -11,7 +11,7 @@ This repository contains the backend codebase for the Project de Fin d'Étude (P
 2. Clone this repository to your local machine:
 
     ```bash
-    git clone https://github.com/lvanbel/PFE-backend
+    git clone https://github.com/GeraldCrisostomo/PFE-backend
     ```
 
 3. Navigate to the project directory:
