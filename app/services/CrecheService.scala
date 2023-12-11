@@ -1,7 +1,7 @@
 package services
 
 import javax.inject.Inject
-import models.{Creche, CrecheCreate, CrecheUpdate, CrecheWithDetails, LigneCommandeParDefaut}
+import models.{Article, ArticleSansPourcentage, Creche, CrecheCreate, CrecheUpdate, CrecheWithDetails, LigneCommandeParDefaut, LigneCommandeParDefautWithDetails}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
@@ -33,7 +33,20 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
     def * = (id_creche, id_article, nb_caisses, nb_unites) <> ((LigneCommandeParDefaut.apply _).tupled, LigneCommandeParDefaut.unapply)
   }
 
+  // Représentation de la table "LigneCommandesParDefaut"
   private val lignesCommandeParDefaut = TableQuery[LigneCommandeParDefautTable]
+
+  // Définition de la table "Article"
+  private class ArticleTable(tag: Tag) extends Table[Article](tag, Some("pfe"), "articles") {
+    def id_article = column[Long]("id_article", O.PrimaryKey, O.AutoInc)
+    def libelle = column[String]("libelle")
+    def taille = column[Option[String]]("taille")
+    def pourcentage = column[Int]("pourcentage")
+    def * = (id_article, libelle, taille, pourcentage) <> ((Article.apply _).tupled, Article.unapply)
+  }
+
+  // Représentation de la table "articles"
+  private val articles = TableQuery[ArticleTable]
 
   /**
    * Récupère toutes les crèches depuis la base de données.
@@ -68,10 +81,10 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
     result.map {
       case (Some(creche), lignesList) =>
         // Conversion des lignes de commande par défaut pour les détails
-        val lignesParDefaut = lignesList.map { ligne =>
-          LigneCommandeParDefaut(
+        val lignesParDefautWithDetails = lignesList.map { ligne =>
+          LigneCommandeParDefautWithDetails(
             id_creche = ligne.id_creche,
-            id_article = ligne.id_article,
+            article = ligne.article,
             nb_caisses = ligne.nb_caisses,
             nb_unites = ligne.nb_unites
           )
@@ -84,7 +97,7 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
             nom = creche.nom,
             ville = creche.ville,
             rue = creche.rue,
-            lignes_par_defaut = lignesParDefaut
+            lignes_par_defaut = lignesParDefautWithDetails
           )
         )
       case _ =>
@@ -97,15 +110,29 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
    * Récupère les lignes de commande par défaut associées à une crèche par son ID.
    *
    * @param idCreche ID de la crèche.
-   * @return Future[List[LigneCommandeParDefaut]] contenant la liste des lignes de commande par défaut.
+   * @return Future[List[LigneCommandeParDefautWithDetails]] contenant la liste des lignes de commande par défaut avec détails.
    */
-  def getLignesCommandeParDefautByIdCreche(idCreche: Long): Future[List[LigneCommandeParDefaut]] = {
-    val query = lignesCommandeParDefaut
-      .filter(_.id_creche === idCreche)
-      .result
+  def getLignesCommandeParDefautByIdCreche(idCreche: Long): Future[List[LigneCommandeParDefautWithDetails]] = {
+    val query = (for {
+      ligne <- lignesCommandeParDefaut.filter(_.id_creche === idCreche)
+      article <- articles.filter(_.id_article === ligne.id_article)
+    } yield (ligne, article)).result
 
-    dbConfig.db.run(query).map(_.toList)
+    dbConfig.db.run(query).map(_.toList.map {
+      case (ligne, article) =>
+        LigneCommandeParDefautWithDetails(
+          id_creche = ligne.id_creche,
+          article = ArticleSansPourcentage(
+            id_article = article.id_article,
+            libelle = article.libelle,
+            taille = article.taille
+          ),
+          nb_caisses = ligne.nb_caisses,
+          nb_unites = ligne.nb_unites
+        )
+    })
   }
+
 
   /**
    * Crée une nouvelle crèche dans la base de données.
