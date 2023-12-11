@@ -54,7 +54,7 @@ object LigneCommande {
   implicit val format: OFormat[LigneCommande] = Json.format[LigneCommande]
 }
 
-object LigneCommandeWithDeltails {
+object LigneCommandeWithDetails {
   // Implémente le format JSON implicite pour la sérialisation/désérialisation des objets LigneCommandeWithDeltails.
   implicit val format: OFormat[LigneCommandeWithDetails] = Json.format[LigneCommandeWithDetails]
 }
