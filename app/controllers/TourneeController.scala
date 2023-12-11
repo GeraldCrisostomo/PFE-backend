@@ -12,9 +12,20 @@ import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+/**
+ * Contrôleur pour gérer les actions liées aux tournées.
+ *
+ * @param cc             Composants du contrôleur fournis par Play Framework.
+ * @param tourneeService Service pour la gestion des tournées.
+ */
 @Singleton
 class TourneeController @Inject()(cc: ControllerComponents, tourneeService: TourneeService) extends AbstractController(cc) {
 
+  /**
+   * Récupère les tournées par date.
+   *
+   * @param date Date au format ISO_LOCAL_DATE.
+   */
   def getTourneesByDate(date: String): Action[AnyContent] = Action.async {
     val localDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE)
 
@@ -25,6 +36,9 @@ class TourneeController @Inject()(cc: ControllerComponents, tourneeService: Tour
     }
   }
 
+  /**
+   * Crée une nouvelle tournée.
+   */
   def createTournee(): Action[JsValue] = Action.async(parse.json) { request =>
     val tourneeCreation = request.body.as[TourneeCreation]
 
@@ -37,6 +51,11 @@ class TourneeController @Inject()(cc: ControllerComponents, tourneeService: Tour
     id_tournee.map(Created(_))
   }
 
+  /**
+   * Récupère une tournée par son identifiant.
+   *
+   * @param id_tournee Identifiant de la tournée.
+   */
   def getTourneeById(id_tournee: Long): Action[AnyContent] = Action.async {
     tourneeService.getTourneeById(id_tournee).map {
       case Some(tournee) => Ok(Json.toJson(tournee))
@@ -44,6 +63,11 @@ class TourneeController @Inject()(cc: ControllerComponents, tourneeService: Tour
     }
   }
 
+  /**
+   * Met à jour une tournée par son identifiant.
+   *
+   * @param id_tournee Identifiant de la tournée à mettre à jour.
+   */
   def updateTournee(id_tournee: Long): Action[JsValue] = Action.async(parse.json) { request =>
     val tourneeUpdate = request.body.as[TourneeUpdate]
     tourneeService.updateTournee(id_tournee, tourneeUpdate).map { updated =>
@@ -55,6 +79,11 @@ class TourneeController @Inject()(cc: ControllerComponents, tourneeService: Tour
     }
   }
 
+  /**
+   * Supprime une tournée par son identifiant.
+   *
+   * @param id_tournee Identifiant de la tournée à supprimer.
+   */
   def deleteTournee(id_tournee: Long): Action[AnyContent] = Action.async { _ =>
     tourneeService.deleteTournee(id_tournee).map { deleted =>
       if (deleted) {
@@ -65,6 +94,11 @@ class TourneeController @Inject()(cc: ControllerComponents, tourneeService: Tour
     }
   }
 
+  /**
+   * Récupère le résumé d'une tournée par son identifiant.
+   *
+   * @param id_tournee Identifiant de la tournée.
+   */
   def getTourneeResume(id_tournee: Long): Action[AnyContent] = Action.async { _ =>
     tourneeService.getTourneeResume(id_tournee).map { tourneeResumeList =>
       Ok(Json.toJson(tourneeResumeList))
@@ -73,6 +107,11 @@ class TourneeController @Inject()(cc: ControllerComponents, tourneeService: Tour
     }
   }
 
+  /**
+   * Modifie le livreur associé à une tournée.
+   *
+   * @param id_tournee Identifiant de la tournée.
+   */
   def modifierLivreur(id_tournee: Long): Action[JsValue] = Action.async(parse.json) { request =>
     val livreurModification = request.body.as[LivreurModification]
     tourneeService.modifierLivreur(id_tournee, livreurModification).map { success =>

@@ -15,6 +15,7 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
   private val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig.profile.api._
 
+  // Définition de la table des tournées
   private class TourneeTable(tag: Tag) extends Table[Tournee](tag, Some("pfe"), "tournees") {
     def id_tournee = column[Long]("id_tournee", O.PrimaryKey, O.AutoInc)
     def date = column[LocalDate]("date")
@@ -27,6 +28,7 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
 
   private val tournees = TableQuery[TourneeTable]
 
+  // Définition de la table des utilisateurs
   private class UtilisateurTable(tag: Tag) extends Table[Utilisateur](tag, Some("pfe"), "utilisateurs") {
     def id_utilisateur = column[Long]("id_utilisateur", O.PrimaryKey, O.AutoInc)
     def nom = column[String]("nom")
@@ -39,6 +41,12 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
 
   private val utilisateurs = TableQuery[UtilisateurTable]
 
+  /**
+   * Récupère la liste des tournées avec livreur pour une date donnée.
+   *
+   * @param date Date des tournées à récupérer.
+   * @return Future[List[TourneeAvecLivreur]] contenant la liste des tournées avec livreur.
+   */
   def getTourneesByDate(date: LocalDate): Future[List[TourneeAvecLivreur]] = {
     val query = for {
       (t, u) <- tournees.filter(_.date === date) joinLeft utilisateurs on (_.id_livreur === _.id_utilisateur)
@@ -50,6 +58,12 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     })
   }
 
+  /**
+   * Crée une nouvelle tournée.
+   *
+   * @param tourneeCreation Données de création de la tournée.
+   * @return Future[Long] contenant l'ID de la nouvelle tournée.
+   */
   def createTournee(tourneeCreation: TourneeCreation): Future[Long] = {
     val insertTournee = (tournees returning tournees.map(_.id_tournee)) += Tournee(
       id_tournee = 0, // La valeur exacte n'importe pas ici, car elle sera générée par PostgreSQL
@@ -62,6 +76,12 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     dbConfig.db.run(insertTournee)
   }
 
+  /**
+   * Récupère une tournée avec livreur par son ID.
+   *
+   * @param id_tournee ID de la tournée à récupérer.
+   * @return Future[Option[TourneeAvecLivreur]] contenant la tournée avec livreur, ou None si elle n'existe pas.
+   */
   def getTourneeById(id_tournee: Long): Future[Option[TourneeAvecLivreur]] = {
     val query = for {
       t <- tournees.filter(_.id_tournee === id_tournee)
@@ -74,7 +94,13 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     })
   }
 
-
+  /**
+   * Met à jour une tournée.
+   *
+   * @param id_tournee ID de la tournée à mettre à jour.
+   * @param tourneeUpdate Données de mise à jour de la tournée.
+   * @return Future[Boolean] indiquant si la mise à jour a réussi.
+   */
   def updateTournee(id_tournee: Long, tourneeUpdate: TourneeUpdate): Future[Boolean] = {
     val updateQuery = tournees
       .filter(_.id_tournee === id_tournee)
@@ -84,9 +110,16 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     dbConfig.db.run(updateQuery).map(_ > 0)
   }
 
+  /**
+   * Supprime une tournée.
+   *
+   * @param id_tournee ID de la tournée à supprimer.
+   * @return Future[Boolean] indiquant si la suppression a réussi.
+   */
   def deleteTournee(id_tournee: Long): Future[Boolean] =
     dbConfig.db.run(tournees.filter(_.id_tournee === id_tournee).delete).map(_ > 0)
 
+  // Définition de la table des résumés de tournées
   private class ResumesTourneesTable(tag: Tag) extends Table[ResumeTournee](tag, Some("public"), "ResumesTournees") {
     def id_tournee = column[Long]("id_tournee")
     def id_article = column[Long]("id_article")
@@ -99,6 +132,7 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
 
   private val resumesTournees = TableQuery[ResumesTourneesTable]
 
+  // Résultat personnalisé pour le mapping des résumés de tournées
   implicit val getResumeTourneeResult: GetResult[ResumeTournee] = new GetResult[ResumeTournee] {
     def apply(r: PositionedResult): ResumeTournee =
       ResumeTournee(
@@ -111,6 +145,12 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
       )
   }
 
+  /**
+   * Récupère le résumé d'une tournée par son ID.
+   *
+   * @param id_tournee ID de la tournée.
+   * @return Future[List[ResumeTournee]] contenant la liste des résumés de la tournée.
+   */
   def getTourneeResume(id_tournee: Long): Future[List[ResumeTournee]] = {
     val sqlQuery =
       s"""
@@ -122,7 +162,13 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
     dbConfig.db.run(sql"""#$sqlQuery""".as[ResumeTournee]).map(_.toList)
   }
 
-
+  /**
+   * Modifie le livreur associé à une tournée.
+   *
+   * @param id_tournee ID de la tournée à mettre à jour.
+   * @param livreurModification Données de modification du livreur.
+   * @return Future[Boolean] indiquant si la mise à jour a réussi.
+   */
   def modifierLivreur(id_tournee: Long, livreurModification: LivreurModification): Future[Boolean] = {
     val updateQuery = tournees.filter(_.id_tournee === id_tournee).map(_.id_livreur).update(livreurModification.id_livreur)
     dbConfig.db.run(updateQuery).map(_ > 0)
