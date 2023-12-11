@@ -26,7 +26,7 @@ case class LigneCommande(
  * @param nb_caisses     Le nombre de caisses dans la ligne de commande.
  * @param nb_unites      Le nombre d'unités dans la ligne de commande.
  */
-case class LigneCommandeWithDeltails(
+case class LigneCommandeWithDetails(
                                       id_commande: Long,
                                       article: ArticleSansPourcentage,
                                       nb_caisses: Int,
@@ -56,7 +56,7 @@ object LigneCommande {
 
 object LigneCommandeWithDeltails {
   // Implémente le format JSON implicite pour la sérialisation/désérialisation des objets LigneCommandeWithDeltails.
-  implicit val format: OFormat[LigneCommandeWithDeltails] = Json.format[LigneCommandeWithDeltails]
+  implicit val format: OFormat[LigneCommandeWithDetails] = Json.format[LigneCommandeWithDetails]
 }
 
 object LigneCommandeUpdate {
