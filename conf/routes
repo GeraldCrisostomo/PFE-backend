@@ -39,7 +39,7 @@ DELETE  /tourneesParDefaut/:id_tournee_par_defaut   controllers.TourneeParDefaut
 
 # Commandes par defaut
 GET     /commandesParDefaut/tourneeParDefaut/:id_tournee_par_defaut       controllers.CommandeParDefautController.getCommandesParDefaut(id_tournee_par_defaut: Long)
-POST    /commandesParDefaut/tourneeParDefaut/:id_tournee_par_defaut      controllers.CommandeParDefautController.createCommandeParDefaut(id_tournee_par_defaut: Long)
+POST    /commandesParDefaut/tourneeParDefaut/:id_tournee_par_defaut       controllers.CommandeParDefautController.createCommandeParDefaut(id_tournee_par_defaut: Long)
 GET     /commandesParDefaut/:id_commande_par_defaut                       controllers.CommandeParDefautController.getCommandeParDefautById(id_commande_par_defaut: Long)
 PATCH   /commandesParDefaut/:id_commande_par_defaut                       controllers.CommandeParDefautController.updateCommandeParDefaut(id_commande_par_defaut: Long)
 DELETE  /commandesParDefaut/:id_commande_par_defaut                       controllers.CommandeParDefautController.deleteCommandeParDefaut(id_commande_par_defaut: Long)
