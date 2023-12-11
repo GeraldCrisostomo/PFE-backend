@@ -9,6 +9,13 @@ case class LigneCommande(
                           nb_unites: Int
                         )
 
+case class LigneCommandeWithDeltails(
+                                      id_commande: Long,
+                                      article: ArticleSansPourcentage,
+                                      nb_caisses: Int,
+                                      nb_unites: Int
+                                    )
+
 case class LigneCommandeUpdate(
                                 id_commande: Long,
                                 id_article: Long,
@@ -18,6 +25,10 @@ case class LigneCommandeUpdate(
 
 object LigneCommande {
   implicit val format: OFormat[LigneCommande] = Json.format[LigneCommande]
+}
+
+object LigneCommandeWithDeltails {
+  implicit val format: OFormat[LigneCommandeWithDeltails] = Json.format[LigneCommandeWithDeltails]
 }
 
 object LigneCommandeUpdate {
