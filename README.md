@@ -17,7 +17,7 @@ This repository contains the backend codebase for the Project de Fin d'Étude (P
 3. Navigate to the project directory:
 
     ```bash
-    cd application-backend
+    cd PFE-backend
     ```
 
 4. Run the application using SBT:
