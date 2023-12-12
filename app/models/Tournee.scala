@@ -52,6 +52,17 @@ case class TourneeCreation(
                           )
 
 /**
+ * Représente les détails nécessaires pour créer une nouvelle tournée ainsi que son nom.
+ *
+ * @param date   La date de la nouvelle tournée.
+ * @param nom    Le nom de la nouvelle tournée
+ */
+case class TourneeCreationComplete(
+                                    date: LocalDate,
+                                    nom: Option[String]
+                                  )
+
+/**
  * Représente une mise à jour pour une tournée, y compris le nouveau nom et le nouveau statut.
  *
  * @param nom    Le nouveau nom de la tournée.
@@ -113,6 +124,11 @@ object TourneeAvecLivreur {
 object TourneeCreation {
   // Implémente le format JSON implicite pour la sérialisation/désérialisation des objets TourneeCreation.
   implicit val format: OFormat[TourneeCreation] = Json.format[TourneeCreation]
+}
+
+object TourneeCreationComplete {
+  // Implémente le format JSON implicite pour la sérialisation/désérialisation des objets TourneeCreationComplete.
+  implicit val format: OFormat[TourneeCreationComplete] = Json.format[TourneeCreationComplete]
 }
 
 object TourneeUpdate {
