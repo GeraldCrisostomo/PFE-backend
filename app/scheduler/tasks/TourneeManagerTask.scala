@@ -22,6 +22,8 @@ class TourneeManagerTask @Inject()(actorSystem: ActorSystem,
   // Calcul du délai initial pour commencer à 23h
   private val initialDelay = calculateInitialDelay()
 
+  println(initialDelay)
+
   // Planifie l'exécution de la tâche à un taux fixe
   actorSystem.scheduler.scheduleAtFixedRate(
     initialDelay = initialDelay,
@@ -31,14 +33,14 @@ class TourneeManagerTask @Inject()(actorSystem: ActorSystem,
   )
 
   /**
-   * Calcule le délai initial pour que la première exécution de la tâche se produise à 23h.
+   * Calcule le délai initial pour que la première exécution de la tâche se produise à 22h30 UTC+1.
    *
    * @return Le délai initial en tant que FiniteDuration.
    */
   private def calculateInitialDelay(): FiniteDuration = {
     val now = System.currentTimeMillis()
-    // target = 23h
-    val target = now - now % (24 * 60 * 60 * 1000) + 23 * 60 * 60 * 1000
+    // target = 21h30 UTC
+    val target = now - now % (24 * 60 * 60 * 1000) + 21 * 60 * 60 * 1000 + 30 * 60 * 1000
     (target - now).milliseconds
   }
 }
