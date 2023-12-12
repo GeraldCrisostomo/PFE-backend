@@ -1,6 +1,6 @@
 package services
 
-import models.{LivreurModification, ResumeTournee, Tournee, TourneeAvecLivreur, TourneeCreation, TourneeUpdate, Utilisateur}
+import models.{LivreurModification, ResumeTournee, Tournee, TourneeAvecLivreur, TourneeCreation, TourneeUpdate, TourneeUpdateDate, Utilisateur}
 
 import javax.inject._
 import play.api.db.slick.DatabaseConfigProvider
@@ -106,6 +106,22 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
       .filter(_.id_tournee === id_tournee)
       .map(t => (t.nom, t.statut))
       .update((tourneeUpdate.nom, tourneeUpdate.statut))
+
+    dbConfig.db.run(updateQuery).map(_ > 0)
+  }
+
+  /**
+   * Met à jour la date d'une tournée existante dans la base de données.
+   *
+   * @param id_tournee        L'ID de la tournée à mettre à jour.
+   * @param tourneeUpdateDate Données pour la mise à jour de la date de la tournée.
+   * @return Un Future[Boolean] indiquant si la mise à jour de la date a réussi.
+   */
+  def updateTourneeDate(id_tournee: Long, tourneeUpdateDate: TourneeUpdateDate): Future[Boolean] = {
+    val updateQuery = tournees
+      .filter(_.id_tournee === id_tournee)
+      .map(t => t.date)
+      .update(tourneeUpdateDate.new_date)
 
     dbConfig.db.run(updateQuery).map(_ > 0)
   }
