@@ -9,6 +9,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 // Scala version
 scalaVersion := "2.13.12"
 
+libraryDependencies += "org.apache.pekko" %% "pekko-actor" % "1.0.0"
+
 // Dependencies
 libraryDependencies += guice
 libraryDependencies += filters
