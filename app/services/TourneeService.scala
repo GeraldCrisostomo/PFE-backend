@@ -1,6 +1,6 @@
 package services
 
-import models.{LivreurModification, ResumeTournee, Tournee, TourneeAvecLivreur, TourneeCreation, TourneeUpdate, TourneeUpdateDate, Utilisateur}
+import models.{LivreurModification, ResumeTournee, Tournee, TourneeAvecLivreur, TourneeCreation, TourneeCreationComplete, TourneeUpdate, TourneeUpdateDate, Utilisateur}
 
 import javax.inject._
 import play.api.db.slick.DatabaseConfigProvider
@@ -70,6 +70,24 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
       date = tourneeCreation.date,
       id_livreur = null,
       nom = null,
+      statut = "en attente"
+    )
+
+    dbConfig.db.run(insertTournee)
+  }
+
+  /**
+   * Crée une nouvelle tournée avec un nom.
+   *
+   * @param tourneeCreationComplete Données de création de la tournée.
+   * @return Future[Long] contenant l'ID de la nouvelle tournée.
+   */
+  def createTourneeWithName(tourneeCreationComplete: TourneeCreationComplete): Future[Long] = {
+    val insertTournee = (tournees returning tournees.map(_.id_tournee)) += Tournee(
+      id_tournee = 0, // La valeur exacte n'importe pas ici, car elle sera générée par PostgreSQL
+      date = tourneeCreationComplete.date,
+      id_livreur = null,
+      nom = tourneeCreationComplete.nom,
       statut = "en attente"
     )
 
