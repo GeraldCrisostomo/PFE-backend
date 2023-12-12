@@ -63,6 +63,15 @@ case class TourneeUpdate(
                         )
 
 /**
+ * Représente une mise à jour de la date d'une tournée
+ *
+ * @param new_date La nouvelle date de la tournée.
+ */
+case class TourneeUpdateDate(
+                              new_date: LocalDate
+                            )
+
+/**
  * Représente une modification du livreur associé à une tournée.
  *
  * @param id_livreur L'identifiant unique du nouveau livreur associé à la tournée (optionnel).
@@ -109,6 +118,11 @@ object TourneeCreation {
 object TourneeUpdate {
   // Implémente le format JSON implicite pour la sérialisation/désérialisation des objets TourneeUpdate.
   implicit val format: OFormat[TourneeUpdate] = Json.format[TourneeUpdate]
+}
+
+object TourneeUpdateDate {
+  // Implémente le format JSON implicite pour la sérialisation/désérialisation des objets TourneeUpdateDate.
+  implicit val format: OFormat[TourneeUpdateDate] = Json.format[TourneeUpdateDate]
 }
 
 object LivreurModification {
