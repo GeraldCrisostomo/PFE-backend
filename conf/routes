@@ -45,6 +45,6 @@ PATCH   /commandesParDefaut/:id_commande_par_defaut                       contro
 DELETE  /commandesParDefaut/:id_commande_par_defaut                       controllers.CommandeParDefautController.deleteCommandeParDefaut(id_commande_par_defaut: Long)
 
 # Utilisateurs
-GET     /utilisateurs                               controllers.UtilisateurController.getAllUtilisateurs
+GET     /utilisateurs                               controllers.UtilisateurController.getAllUtilisateurs()
 GET     /utilisateurs/role/:role                    controllers.UtilisateurController.getAllSupplementsByRole(role: String)
-GET     /utilisateurs/:id_utilisateur                controllers.UtilisateurController.getUtilisateur(id_utilisateur: Long)
+GET     /utilisateurs/:id_utilisateur               controllers.UtilisateurController.getUtilisateur(id_utilisateur: Long)
