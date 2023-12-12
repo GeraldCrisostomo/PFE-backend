@@ -1,16 +1,20 @@
 package services
 
-import models.{LivreurModification, ResumeTournee, Tournee, TourneeAvecLivreur, TourneeCreation, TourneeCreationComplete, TourneeUpdate, TourneeUpdateDate, Utilisateur}
+import models.{CommandeCreate, LivreurModification, ResumeTournee, Tournee, TourneeAvecLivreur, TourneeCreation, TourneeCreationComplete, TourneeUpdate, TourneeUpdateDate, Utilisateur}
 
 import javax.inject._
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.{GetResult, JdbcProfile, PositionedResult}
 
 import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Singleton
-class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext) {
+class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider,
+                               commandeService: CommandeService,
+                               commandeParDefautService: CommandeParDefautService)
+                              (implicit ec: ExecutionContext) {
 
   private val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig.profile.api._
@@ -77,12 +81,13 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
   }
 
   /**
-   * Crée une nouvelle tournée avec un nom.
+   * Crée une tournée avec les détails fournis et ajoute des commandes par défaut.
    *
-   * @param tourneeCreationComplete Données de création de la tournée.
-   * @return Future[Long] contenant l'ID de la nouvelle tournée.
+   * @param tourneeCreationComplete Les informations complètes pour créer une tournée.
+   * @return Un Future contenant l'ID de la tournée créée.
    */
-  def createTourneeWithName(tourneeCreationComplete: TourneeCreationComplete): Future[Long] = {
+  def createTourneeWithNameAndAddCommandesParDefaut(tourneeCreationComplete: TourneeCreationComplete): Future[Long] = {
+    // Étape 1 : Insérer une nouvelle tournée dans la base de données
     val insertTournee = (tournees returning tournees.map(_.id_tournee)) += Tournee(
       id_tournee = 0, // La valeur exacte n'importe pas ici, car elle sera générée par PostgreSQL
       date = tourneeCreationComplete.date,
@@ -91,8 +96,29 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
       statut = "en attente"
     )
 
-    dbConfig.db.run(insertTournee)
+    // Étape 2 : Exécuter l'opération de base de données pour insérer la tournée et obtenir l'ID généré
+    val id_tournee_created_Future = dbConfig.db.run(insertTournee)
+    val id_tournee_created: Long = Await.result(id_tournee_created_Future, Duration.Inf)
+
+    // Étape 3 : Récupérer les commandes par défaut pour la tournée spécifiée
+    val commandesParDefautFuture =
+      commandeParDefautService.getCommandesParDefaut(tourneeCreationComplete.id_tournee_par_defaut)
+
+    // Étape 4 : Pour chaque commande par défaut, créer une nouvelle commande associée à la tournée créée
+    commandesParDefautFuture.foreach(commandesParDefaut =>
+      for (commandeParDefaut <- commandesParDefaut) {
+        val commandeCreate = CommandeCreate(
+          id_creche = commandeParDefaut.creche.id_creche,
+          ordre = commandeParDefaut.ordre
+        )
+        commandeService.createCommande(id_tournee_created, commandeCreate)
+      }
+    )
+
+    // Étape 5 : Retourner le Future contenant l'ID de la tournée créée
+    id_tournee_created_Future
   }
+
 
   /**
    * Récupère une tournée avec livreur par son ID.
