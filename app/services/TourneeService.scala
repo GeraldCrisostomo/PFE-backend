@@ -50,11 +50,11 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implici
   def getTourneesByDate(date: LocalDate): Future[List[TourneeAvecLivreur]] = {
     val query = for {
       (t, u) <- tournees.filter(_.date === date) joinLeft utilisateurs on (_.id_livreur === _.id_utilisateur)
-    } yield (t.id_tournee, t.date, t.id_livreur, u.map(_.nom), u.map(_.prenom), t.statut)
+    } yield (t.id_tournee, t.date, t.id_livreur, u.map(_.nom), u.map(_.prenom), t.nom, t.statut)
 
     dbConfig.db.run(query.to[List].result).map(_.map {
-      case (id, dt, idLivreur, nom, prenom, statut) =>
-        TourneeAvecLivreur(id, dt, idLivreur, nom, prenom, nom, statut)
+      case (id, dt, idLivreur, nomLivreur, prenomLivreur, nom, statut) =>
+        TourneeAvecLivreur(id, dt, idLivreur, nomLivreur, prenomLivreur, nom, statut)
     })
   }
 
