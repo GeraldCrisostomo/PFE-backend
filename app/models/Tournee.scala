@@ -52,12 +52,15 @@ case class TourneeCreation(
                           )
 
 /**
- * Représente les détails nécessaires pour créer une nouvelle tournée ainsi que son nom.
+ * Représente les détails nécessaires pour créer une nouvelle tournée ainsi que son nom
+ * et la tournée par défaut sur laquelle elle est basée.
  *
- * @param date   La date de la nouvelle tournée.
- * @param nom    Le nom de la nouvelle tournée
+ * @param id_tournee_par_defaut   L'id de la tournée par défaut sur laquelle elle se base
+ * @param date                    La date de la nouvelle tournée.
+ * @param nom                     Le nom de la nouvelle tournée
  */
 case class TourneeCreationComplete(
+                                    id_tournee_par_defaut: Long,
                                     date: LocalDate,
                                     nom: Option[String]
                                   )
