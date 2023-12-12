@@ -6,18 +6,18 @@ This repository contains the backend codebase for the Project de Fin d'Étude (P
 
 ## Installation
 
-1. Make sure you have Java (11+) and SBT (Simple Build Tool) installed on your machine.
+1. Make sure you have [Java LTS](https://www.oracle.com/java/technologies/downloads/) (11, 17 or 21) and [SBT](https://www.scala-sbt.org/download.html?_ga=2.251090118.1134353547.1702311018-1959218732.1701543598) (Simple Build Tool) installed on your machine.
 
 2. Clone this repository to your local machine:
 
     ```bash
-    git clone https://github.com/lvanbel/PFE-backend
+    git clone https://github.com/GeraldCrisostomo/PFE-backend
     ```
 
 3. Navigate to the project directory:
 
     ```bash
-    cd application-backend
+    cd PFE-backend
     ```
 
 4. Run the application using SBT:

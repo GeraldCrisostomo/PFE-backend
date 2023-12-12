@@ -1,0 +1,24 @@
+### Créer une tournée par défaut
+POST http://localhost:9000/tourneesParDefaut
+Content-Type: application/json
+
+{
+  "nom_par_defaut": "Tournée : Ixelles"
+}
+
+### Récupérer toutes les tournées par défaut
+GET http://localhost:9000/tourneesParDefaut
+
+### Récupérer une tournée par défaut par son ID
+GET http://localhost:9000/tourneesParDefaut/3
+
+### Modifier le nom d'une tournée par défaut
+PATCH http://localhost:9000/tourneesParDefaut/3
+Content-Type: application/json
+
+{
+  "new_nom_par_defaut": null
+}
+
+### Supprimer une tournée par défaut
+DELETE http://localhost:9000/tourneesParDefaut/3

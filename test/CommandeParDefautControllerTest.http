@@ -1,0 +1,25 @@
+### Récupérer toutes les commandes par défaut pour une tournée par défaut spécifique
+GET http://localhost:9000/commandesParDefaut/tourneeParDefaut/2
+
+### Créer une nouvelle commande par défaut pour une tournée par défaut spécifique
+POST http://localhost:9000/commandesParDefaut/tourneeParDefaut/2
+Content-Type: application/json
+
+{
+  "id_creche": 2,
+  "ordre": 4
+}
+
+### Récupérer les informations d'une commande par défaut spécifique
+GET http://localhost:9000/commandesParDefaut/1
+
+### Modifier l'ordre d'une commande par défaut spécifique
+PATCH http://localhost:9000/commandesParDefaut/1
+Content-Type: application/json
+
+{
+  "new_ordre": 2
+}
+
+### Supprimer une commande par défaut spécifique
+DELETE http://localhost:9000/commandesParDefaut/5

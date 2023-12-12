@@ -1,7 +1,7 @@
 package services
 
 import javax.inject.Inject
-import models.{Creche, CrecheCreate, CrecheUpdate, CrecheWithDetails, LigneCommandeParDefaut}
+import models.{Article, ArticleSansPourcentage, Creche, CrecheCreate, CrecheUpdate, CrecheWithDetails, LigneCommandeParDefaut, LigneCommandeParDefautWithDetails}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 
@@ -12,6 +12,7 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
   private val dbConfig = dbConfigProvider.get[JdbcProfile]
   import dbConfig.profile.api._
 
+  // Définition de la table "creches"
   private class CrecheTable(tag: Tag) extends Table[Creche](tag, Some("pfe"), "creches") {
     def id_creche = column[Long]("id_creche", O.PrimaryKey, O.AutoInc)
     def nom = column[String]("nom")
@@ -22,6 +23,7 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
 
   private val creches = TableQuery[CrecheTable]
 
+  // Définition de la table "lignes_commande_par_defaut"
   private class LigneCommandeParDefautTable(tag: Tag) extends Table[LigneCommandeParDefaut](tag, Some("pfe"), "lignes_commande_par_defaut") {
     def id_creche = column[Long]("id_creche")
     def id_article = column[Long]("id_article")
@@ -31,61 +33,125 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
     def * = (id_creche, id_article, nb_caisses, nb_unites) <> ((LigneCommandeParDefaut.apply _).tupled, LigneCommandeParDefaut.unapply)
   }
 
+  // Représentation de la table "LigneCommandesParDefaut"
   private val lignesCommandeParDefaut = TableQuery[LigneCommandeParDefautTable]
 
+  // Définition de la table "Article"
+  private class ArticleTable(tag: Tag) extends Table[Article](tag, Some("pfe"), "articles") {
+    def id_article = column[Long]("id_article", O.PrimaryKey, O.AutoInc)
+    def libelle = column[String]("libelle")
+    def taille = column[Option[String]]("taille")
+    def pourcentage = column[Int]("pourcentage")
+    def * = (id_article, libelle, taille, pourcentage) <> ((Article.apply _).tupled, Article.unapply)
+  }
+
+  // Représentation de la table "articles"
+  private val articles = TableQuery[ArticleTable]
+
+  /**
+   * Récupère toutes les crèches depuis la base de données.
+   *
+   * @return Future[List[Creche]] contenant la liste des crèches.
+   */
   def getAllCreches: Future[List[Creche]] =
     dbConfig.db.run(creches.to[List].result)
 
+  /**
+   * Récupère les détails d'une crèche par son ID, y compris les lignes de commande par défaut qui lui sont associées.
+   *
+   * @param id ID de la crèche.
+   * @return Future[Option[CrecheWithDetails]] contenant les détails de la crèche.
+   */
   def getCrecheById(id: Long): Future[Option[CrecheWithDetails]] = {
+    // Requête pour récupérer les détails de la crèche
     val crecheQuery = creches
       .filter(_.id_creche === id)
       .result.headOption
 
+    // Requête pour récupérer les lignes de commande par défaut associées à la crèche
     val lignesQuery = getLignesCommandeParDefautByIdCreche(id)
 
+    // Exécution des deux requêtes en parallèle
     val result = for {
       crecheOption <- dbConfig.db.run(crecheQuery)
       lignesList <- lignesQuery
     } yield (crecheOption, lignesList)
 
+    // Traitement des résultats
     result.map {
       case (Some(creche), lignesList) =>
-        val lignesParDefaut = lignesList.map { ligne =>
-          LigneCommandeParDefaut(
+        // Conversion des lignes de commande par défaut pour les détails
+        val lignesParDefautWithDetails = lignesList.map { ligne =>
+          LigneCommandeParDefautWithDetails(
             id_creche = ligne.id_creche,
-            id_article = ligne.id_article,
+            article = ligne.article,
             nb_caisses = ligne.nb_caisses,
             nb_unites = ligne.nb_unites
           )
         }
 
+        // Création de l'objet CrecheWithDetails avec les données récupérées
         Some(
           CrecheWithDetails(
             id_creche = Some(creche.id_creche),
             nom = creche.nom,
             ville = creche.ville,
             rue = creche.rue,
-            lignes_par_defaut = lignesParDefaut
+            lignes_par_defaut = lignesParDefautWithDetails
           )
         )
-      case _ => None
+      case _ =>
+        // Aucune crèche trouvée, renvoie None
+        None
     }
   }
 
+  /**
+   * Récupère les lignes de commande par défaut associées à une crèche par son ID.
+   *
+   * @param idCreche ID de la crèche.
+   * @return Future[List[LigneCommandeParDefautWithDetails]] contenant la liste des lignes de commande par défaut avec détails.
+   */
+  def getLignesCommandeParDefautByIdCreche(idCreche: Long): Future[List[LigneCommandeParDefautWithDetails]] = {
+    val query = (for {
+      ligne <- lignesCommandeParDefaut.filter(_.id_creche === idCreche)
+      article <- articles.filter(_.id_article === ligne.id_article)
+    } yield (ligne, article)).result
 
-  def getLignesCommandeParDefautByIdCreche(idCreche: Long): Future[List[LigneCommandeParDefaut]] = {
-    val query = lignesCommandeParDefaut
-      .filter(_.id_creche === idCreche)
-      .result
-
-    dbConfig.db.run(query).map(_.toList)
+    dbConfig.db.run(query).map(_.toList.map {
+      case (ligne, article) =>
+        LigneCommandeParDefautWithDetails(
+          id_creche = ligne.id_creche,
+          article = ArticleSansPourcentage(
+            id_article = article.id_article,
+            libelle = article.libelle,
+            taille = article.taille
+          ),
+          nb_caisses = ligne.nb_caisses,
+          nb_unites = ligne.nb_unites
+        )
+    })
   }
 
 
+  /**
+   * Crée une nouvelle crèche dans la base de données.
+   *
+   * @param crecheCreate Données pour la création de la nouvelle crèche.
+   * @return Future[Long] contenant l'ID de la nouvelle crèche.
+   */
   def createCreche(crecheCreate: CrecheCreate): Future[Long] =
     dbConfig.db.run((creches returning creches.map(_.id_creche)) += Creche(0, crecheCreate.nom, crecheCreate.ville, crecheCreate.rue))
 
+  /**
+   * Met à jour une crèche existante dans la base de données, y compris ses lignes de commande par défaut.
+   *
+   * @param id           ID de la crèche à mettre à jour.
+   * @param crecheUpdate Données pour la mise à jour de la crèche.
+   * @return Future[Boolean] indiquant si la mise à jour a réussi.
+   */
   def updateCreche(id: Long, crecheUpdate: CrecheUpdate): Future[Boolean] = {
+    // Requête pour mettre à jour les données de la crèche
     val updateCrecheQuery = creches
       .filter(_.id_creche === id)
       .map(c => (c.nom, c.ville, c.rue))
@@ -101,15 +167,22 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
       }: _*
     )
 
+    // Transaction pour exécuter les deux mises à jour en une seule opération
     val transaction = DBIO.seq(
       updateCrecheQuery,
       updateLignesCommandeParDefautQuery
     )
 
+    // Exécution de la transaction et renvoi du résultat (true si réussi)
     dbConfig.db.run(transaction).map(_ => true)
   }
 
-
+  /**
+   * Supprime une crèche de la base de données par son ID.
+   *
+   * @param id ID de la crèche à supprimer.
+   * @return Future[Boolean] indiquant si la suppression a réussi.
+   */
   def deleteCreche(id: Long): Future[Boolean] =
     dbConfig.db.run(creches.filter(_.id_creche === id).delete).map(_ > 0)
 }
