@@ -25,7 +25,7 @@ class UtilisateurController @Inject()(cc: ControllerComponents, utilisateurServi
    *
    * @return Action[AnyContent] Action résultant en la liste des utilisateurs au format JSON.
    */
-  def getAllUtilisateurs: Action[AnyContent] = Action.async { implicit _ =>
+  def getAllUtilisateurs: Action[AnyContent] = Action.async {
     utilisateurService.getAllUtilisateurs.map(utilisateurs => Ok(Json.toJson(utilisateurs)))
   }
 
@@ -35,7 +35,7 @@ class UtilisateurController @Inject()(cc: ControllerComponents, utilisateurServi
    * @param role Le rôle des utilisateurs à récupérer.
    * @return Action[AnyContent] Action résultant en la liste des utilisateurs au format JSON.
    */
-  def getAllUtilisateursByRole(role: String): Action[AnyContent] = Action.async { implicit _ =>
+  def getAllUtilisateursByRole(role: String): Action[AnyContent] = Action.async {
     utilisateurService.getAllUtilisateursByRole(role).map { utilisateurs =>
       Ok(Json.toJson(utilisateurs))
     }.recover {
@@ -49,7 +49,7 @@ class UtilisateurController @Inject()(cc: ControllerComponents, utilisateurServi
    * @param id_utilisateur L'identifiant unique de l'utilisateur à récupérer.
    * @return Action[AnyContent] Action résultant en les informations de l'utilisateur au format JSON.
    */
-  def getUtilisateur(id_utilisateur: Long): Action[AnyContent] = Action.async { implicit _ =>
+  def getUtilisateur(id_utilisateur: Long): Action[AnyContent] = Action.async {
     utilisateurService.getUtilisateur(id_utilisateur).map { utilisateur =>
       Ok(Json.toJson(utilisateur))
     }.recover {
@@ -83,13 +83,13 @@ class UtilisateurController @Inject()(cc: ControllerComponents, utilisateurServi
    * Supprime un utilisateur spécifique.
    *
    * @param idUtilisateur L'identifiant unique de l'utilisateur à supprimer.
-   * @return Action[Any] Action résultant en la suppression de l'utilisateur.
+   * @return Action[AnyContent] Action résultant en la suppression de l'utilisateur.
    */
-  def deleteUtilisateur(idUtilisateur: Long): Action[Any] = Action.async { implicit _ =>
-    utilisateurService.deleteUtilisateur(idUtilisateur).map {
-      case true => Ok
-      case false => NotFound
-    }
+  def deleteUtilisateur(idUtilisateur: Long): Action[AnyContent] = Action.async {
+      utilisateurService.deleteUtilisateur(idUtilisateur).map {
+        case true => Ok("Utilisateur supprimé avec succès")
+        case false => NotFound("Utilisateur non trouvé")
+      }
   }
 
   /**
