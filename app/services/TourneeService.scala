@@ -121,20 +121,19 @@ class TourneeService @Inject()(dbConfigProvider: DatabaseConfigProvider,
 
 
   /**
-   * Récupère une tournée avec livreur par son ID.
+   * Récupère les détails d'une tournée par son identifiant, y compris les informations sur le livreur si présent.
    *
-   * @param id_tournee ID de la tournée à récupérer.
-   * @return Future[Option[TourneeAvecLivreur]] contenant la tournée avec livreur, ou None si elle n'existe pas.
+   * @param id_tournee Identifiant de la tournée.
+   * @return Un [[scala.concurrent.Future]] contenant une option de [[TourneeAvecLivreur]].
    */
   def getTourneeById(id_tournee: Long): Future[Option[TourneeAvecLivreur]] = {
     val query = for {
-      t <- tournees.filter(_.id_tournee === id_tournee)
-      u <- utilisateurs.filter(_.id_utilisateur === t.id_livreur)
-    } yield (t.id_tournee, t.date, t.id_livreur, u.nom, u.prenom, t.statut)
+      (t, u) <- tournees.filter(_.id_tournee === id_tournee) joinLeft utilisateurs on (_.id_livreur === _.id_utilisateur)
+    } yield (t.id_tournee, t.date, t.id_livreur, u.map(_.nom), u.map(_.prenom), t.statut)
 
     dbConfig.db.run(query.result.headOption).map(_.map {
       case (id, dt, idLivreur, nom, prenom, statut) =>
-        TourneeAvecLivreur(id, dt, idLivreur, Some(nom), Some(prenom), Some(nom), statut)
+        TourneeAvecLivreur(id, dt, idLivreur, nom, prenom, nom, statut)
     })
   }
 
