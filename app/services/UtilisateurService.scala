@@ -58,7 +58,7 @@ class UtilisateurService @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
   }
 
   /**
-   * Crée un nouvel utilisateur avec le mot de passe hashé en utilisant l'algorithme BCrypt.
+   * Crée un nouvel utilisateur dans la base de données.
    *
    * @param utilisateurCreate Les informations nécessaires pour créer un nouvel utilisateur.
    * @return Future[Long] L'identifiant unique de l'utilisateur créé.
@@ -77,7 +77,7 @@ class UtilisateurService @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
       role = utilisateurCreate.role
     )
 
-    // Exécuter l'action d'insertion dans la base de données
+    // Exécuter l'action d'insertion dans la base de données et récupérer l'identifiant généré
     val insertAction = (utilisateurs returning utilisateurs.map(_.id_utilisateur)) += utilisateurToInsert
     dbConfig.db.run(insertAction)
   }
@@ -85,15 +85,18 @@ class UtilisateurService @Inject()(dbConfigProvider: DatabaseConfigProvider)(imp
   /**
    * Met à jour les informations d'un utilisateur.
    *
-   * @param id_utilisateur L'identifiant unique de l'utilisateur à mettre à jour.
+   * @param id_utilisateur    L'identifiant unique de l'utilisateur à mettre à jour.
    * @param utilisateurUpdate Les nouvelles informations pour l'utilisateur spécifié.
    * @return Une Future[Boolean] indiquant si la mise à jour a réussi (true) ou non (false).
    */
   def updateUtilisateur(id_utilisateur: Long, utilisateurUpdate: UtilisateurUpdate): Future[Boolean] = {
+    // Hasher le nouveau mot de passe avec l'algorithme BCrypt
+    val hashedPassword = BCrypt.hashpw(utilisateurUpdate.mot_de_passe, BCrypt.gensalt())
+
     val updateQuery = utilisateurs
       .filter(_.id_utilisateur === id_utilisateur)
       .map(u => (u.nom, u.prenom, u.identifiant, u.mot_de_passe, u.role))
-      .update((utilisateurUpdate.nom, utilisateurUpdate.prenom, utilisateurUpdate.identifiant, utilisateurUpdate.mot_de_passe, utilisateurUpdate.role))
+      .update((utilisateurUpdate.nom, utilisateurUpdate.prenom, utilisateurUpdate.identifiant, hashedPassword, utilisateurUpdate.role))
 
     dbConfig.db.run(updateQuery).map(_ > 0)
   }

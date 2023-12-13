@@ -63,7 +63,9 @@ class UtilisateurController @Inject()(cc: ControllerComponents, utilisateurServi
    * @return Action[UtilisateurCreate] Action résultant en la création de l'utilisateur.
    */
   def createUtilisateur: Action[UtilisateurCreate] = Action.async(parse.json[UtilisateurCreate]) { implicit request =>
-    utilisateurService.createUtilisateur(request.body).map(_ => Created)
+    utilisateurService.createUtilisateur(request.body).map { userId =>
+      Created(Json.obj("id_utilisateur" -> userId))
+    }
   }
 
   /**
