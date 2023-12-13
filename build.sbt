@@ -20,3 +20,4 @@ libraryDependencies ++= Seq(
   "org.playframework" %% "play-slick-evolutions" % "6.0.0",
   "org.postgresql"    %  "postgresql"            % "42.5.4" // PostgreSQL driver version
 )
+libraryDependencies += "org.mindrot" % "jbcrypt" % "0.4"
