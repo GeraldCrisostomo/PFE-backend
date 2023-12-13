@@ -1,11 +1,44 @@
-### Get All Utilisateurs
-GET http://localhost:9000/utilisateurs
+### Create Utilisateur
+POST http://localhost:9000/utilisateurs
+Content-Type: application/json
 
-### Get All Utilisateurs by role (livreurs)
+{
+  "nom": "Doe",
+  "prenom": "John",
+  "identifiant": "johndoe",
+  "mot_de_passe": "password123",
+  "role": "livreur"
+}
+
+### Get All Utilisateurs by Role (livreurs)
 GET http://localhost:9000/utilisateurs/role/livreur
 
-### Get All Utilisateurs by role (admins)
+### Get All Utilisateurs by Role (admins)
 GET http://localhost:9000/utilisateurs/role/admin
 
 ### Get Utilisateur (1)
 GET http://localhost:9000/utilisateurs/1
+
+### Update Utilisateur (1)
+PUT http://localhost:9000/utilisateurs/6
+Content-Type: application/json
+
+{
+  "nom": "UpdatedName",
+  "prenom": "UpdatedFirstName",
+  "identifiant": "updatedjohn",
+  "mot_de_passe": "updatedpassword",
+  "role": "livreur"
+}
+
+### Delete Utilisateur (1)
+DELETE http://localhost:9000/utilisateurs/6
+
+### Connect Utilisateur
+POST http://localhost:9000/utilisateurs/connexion
+Content-Type: application/json
+
+{
+  "identifiant": "johndoe",
+  "mot_de_passe": "password123"
+}
