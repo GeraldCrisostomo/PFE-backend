@@ -10,6 +10,6 @@ class SimpleTest extends AnyFunSuite {
    * Vérifie si l'assertion `true` est vraie, ce qui réussit toujours.
    */
   test("Always succeeds") {
-    assert(condition = true)
+    assert(true)
   }
 }
