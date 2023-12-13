@@ -83,8 +83,10 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
         // Conversion des lignes de commande par défaut pour les détails
         val lignesParDefautWithDetails = lignesList.map { ligne =>
           LigneCommandeParDefautWithDetails(
+            id_article = ligne.id_article,
             id_creche = ligne.id_creche,
-            article = ligne.article,
+            libelle = ligne.libelle,
+            taille = ligne.taille,
             nb_caisses = ligne.nb_caisses,
             nb_unites = ligne.nb_unites
           )
@@ -121,12 +123,10 @@ class CrecheService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implicit
     dbConfig.db.run(query).map(_.toList.map {
       case (ligne, article) =>
         LigneCommandeParDefautWithDetails(
+          id_article = article.id_article,
           id_creche = ligne.id_creche,
-          article = ArticleSansPourcentage(
-            id_article = article.id_article,
-            libelle = article.libelle,
-            taille = article.taille
-          ),
+          libelle = article.libelle,
+          taille = article.taille,
           nb_caisses = ligne.nb_caisses,
           nb_unites = ligne.nb_unites
         )

@@ -21,17 +21,22 @@ case class LigneCommandeParDefaut(
 /**
  * Représente une ligne de commande par défaut avec des détails supplémentaires, y compris l'article sans pourcentage associé.
  *
- * @param id_creche      L'identifiant unique de la crèche associée à la ligne de commande par défaut.
- * @param article        L'article sans pourcentage associé à la ligne de commande par défaut.
- * @param nb_caisses     Le nombre de caisses dans la ligne de commande par défaut.
- * @param nb_unites      Le nombre d'unités dans la ligne de commande par défaut.
+ * @param id_article   L'identifiant unique de l'article associé à la ligne de commande par défaut.
+ * @param id_creche    L'identifiant unique de la crèche associée à la ligne de commande par défaut.
+ * @param libelle      Le libellé de l'article associé à la ligne de commande par défaut.
+ * @param taille       La taille de l'article associé à la ligne de commande par défaut (optionnelle).
+ * @param nb_caisses   Le nombre de caisses dans la ligne de commande par défaut.
+ * @param nb_unites    Le nombre d'unités dans la ligne de commande par défaut.
  */
 case class LigneCommandeParDefautWithDetails(
-                                               id_creche: Long,
-                                               article: ArticleSansPourcentage,
-                                               nb_caisses: Int,
-                                               nb_unites: Int
+                                              id_article: Long,
+                                              id_creche: Long,
+                                              libelle: String,
+                                              taille: Option[String],
+                                              nb_caisses: Int,
+                                              nb_unites: Int
                                             )
+
 
 object LigneCommandeParDefaut {
   // Implémente le format JSON implicite pour la sérialisation/désérialisation des objets LigneCommandeParDefaut.
