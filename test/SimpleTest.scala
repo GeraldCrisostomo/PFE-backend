@@ -13,11 +13,4 @@ class SimpleTest extends AnyFunSuite {
     assert(true)
   }
 
-  /**
-   * Test : Toujours raté.
-   * Vérifie si l'assertion `false` est vraie, ce qui ne réussit jamais.
-   */
-  test("Never succeeds") {
-    assert(false)
-  }
 }
