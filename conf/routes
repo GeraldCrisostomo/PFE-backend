@@ -20,8 +20,8 @@ GET     /articles                                   controllers.ArticleControlle
 PATCH   /articles/:id_article/modifierPourcentage   controllers.ArticleController.updatePourcentage(id_article: Long)
 
 # Supplements
-GET      /supplements/:id_tournee                   controllers.SupplementController.getAllSupplements(id_tournee: Long)
-PATCH    /supplements/:id_tournee/:id_article       controllers.SupplementController.updateSupplement(id_tournee: Long, id_article: Long)
+GET     /supplements/:id_tournee                   controllers.SupplementController.getAllSupplements(id_tournee: Long)
+PATCH   /supplements/:id_tournee/:id_article       controllers.SupplementController.updateSupplement(id_tournee: Long, id_article: Long)
 
 # Creches
 GET     /creches                                    controllers.CrecheController.getAllCreches()
@@ -32,8 +32,12 @@ DELETE  /creches/:id_creche                         controllers.CrecheController
 
 # Utilisateurs
 GET     /utilisateurs                               controllers.UtilisateurController.getAllUtilisateurs()
+POST    /utilisateurs                               controllers.UtilisateurController.createUtilisateur()
 GET     /utilisateurs/role/:role                    controllers.UtilisateurController.getAllUtilisateursByRole(role: String)
 GET     /utilisateurs/:id_utilisateur               controllers.UtilisateurController.getUtilisateur(id_utilisateur: Long)
+PUT     /utilisateurs/:id_utilisateur               controllers.UtilisateurController.updateUtilisateur(id_utilisateur: Long)
+DELETE  /utilisateurs/:id_utilisateur               controllers.UtilisateurController.deleteUtilisateur(id_utilisateur: Long)
+POST    /utilisateurs/connexion                     controllers.UtilisateurController.connectUtilisateur()
 
 # Tournees par defaut
 GET     /tourneesParDefaut                          controllers.TourneeParDefautController.getTourneesParDefaut()
