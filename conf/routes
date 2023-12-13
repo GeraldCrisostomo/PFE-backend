@@ -30,6 +30,11 @@ POST    /creches                                    controllers.CrecheController
 PUT     /creches/:id_creche                         controllers.CrecheController.updateCreche(id_creche: Long)
 DELETE  /creches/:id_creche                         controllers.CrecheController.deleteCreche(id_creche: Long)
 
+# Utilisateurs
+GET     /utilisateurs                               controllers.UtilisateurController.getAllUtilisateurs()
+GET     /utilisateurs/role/:role                    controllers.UtilisateurController.getAllUtilisateursByRole(role: String)
+GET     /utilisateurs/:id_utilisateur               controllers.UtilisateurController.getUtilisateur(id_utilisateur: Long)
+
 # Tournees par defaut
 GET     /tourneesParDefaut                          controllers.TourneeParDefautController.getTourneesParDefaut()
 POST    /tourneesParDefaut                          controllers.TourneeParDefautController.createTourneeParDefaut()
@@ -43,8 +48,3 @@ POST    /commandesParDefaut/tourneeParDefaut/:id_tournee_par_defaut       contro
 GET     /commandesParDefaut/:id_commande_par_defaut                       controllers.CommandeParDefautController.getCommandeParDefautById(id_commande_par_defaut: Long)
 PATCH   /commandesParDefaut/:id_commande_par_defaut                       controllers.CommandeParDefautController.updateCommandeParDefaut(id_commande_par_defaut: Long)
 DELETE  /commandesParDefaut/:id_commande_par_defaut                       controllers.CommandeParDefautController.deleteCommandeParDefaut(id_commande_par_defaut: Long)
-
-# Utilisateurs
-GET     /utilisateurs                               controllers.UtilisateurController.getAllUtilisateurs()
-GET     /utilisateurs/role/:role                    controllers.UtilisateurController.getAllSupplementsByRole(role: String)
-GET     /utilisateurs/:id_utilisateur               controllers.UtilisateurController.getUtilisateur(id_utilisateur: Long)
