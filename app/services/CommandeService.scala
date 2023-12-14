@@ -222,8 +222,10 @@ class CommandeService @Inject()(dbConfigProvider: DatabaseConfigProvider)(implic
       case (ligneCommande, article) =>
         // Création de l'objet LigneCommandeWithDeltails avec les détails récupérés
         LigneCommandeWithDetails(
+          article.id_article,
           ligneCommande.id_commande,
-          ArticleSansPourcentage(article.id_article, article.libelle, article.taille),
+          article.libelle,
+          article.taille,
           ligneCommande.nb_caisses,
           ligneCommande.nb_unites
         )

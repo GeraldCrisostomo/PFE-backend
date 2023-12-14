@@ -27,8 +27,10 @@ case class LigneCommande(
  * @param nb_unites      Le nombre d'unités dans la ligne de commande.
  */
 case class LigneCommandeWithDetails(
+                                      id_article: Long,
                                       id_commande: Long,
-                                      article: ArticleSansPourcentage,
+                                      libelle: String,
+                                      taille: Option[String],
                                       nb_caisses: Int,
                                       nb_unites: Int
                                     )
